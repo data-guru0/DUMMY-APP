@@ -12,7 +12,7 @@ data:
     }
 
     filter {
-      # You can add filters like grok, json parsing here if needed later
+      # Optional: add grok/json parsers later
     }
 
     output {
@@ -21,6 +21,7 @@ data:
         index => "filebeat-%{+YYYY.MM.dd}"
       }
     }
+
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -42,18 +43,15 @@ spec:
         image: docker.elastic.co/logstash/logstash:7.17.0
         ports:
         - containerPort: 5044
-        - containerPort: 9600
+        - containerPort: 9600  # For monitoring
         volumeMounts:
         - name: config-volume
-          mountPath: /usr/share/logstash/pipeline/logstash.conf
-          subPath: logstash.conf
+          mountPath: /usr/share/logstash/pipeline/
       volumes:
       - name: config-volume
         configMap:
           name: logstash-config
-          items:
-          - key: logstash.conf
-            path: logstash.conf
+
 ---
 apiVersion: v1
 kind: Service
